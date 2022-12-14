@@ -5,7 +5,8 @@ use question::{Answer, Question};
 use reqwest::blocking::Client;
 use serde_json::json;
 use spinners::{Spinner, Spinners};
-use std::{env, fs, io::Write, process::Command};
+use std::{env, io::Write, process::Command};
+use tempfile::tempfile;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -40,7 +41,7 @@ fn main() {
             "model": "text-davinci-003",
             "prompt": format!("{}:\n```bash\n#!/bin/bash\n", cli.prompt),
         }))
-        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Authorization", format!("Bearer {api_key}"))
         .send()
         .unwrap()
         .error_for_status()
@@ -71,7 +72,14 @@ fn main() {
         .print()
         .unwrap();
 
-    let mut file = fs::File::create(".tmp.sh").unwrap();
+    // Creates a temporary file with destructor that will delete it when this variable goes out of scope
+    let mut file = tempfile().unwrap_or_else(|_| {
+        spinner.stop_and_persist(
+            "✖".red().to_string().as_str(),
+            "Failed to create a temporary file.".red().to_string(),
+        );
+        std::process::exit(1);
+    });
     file.write_all(text.as_bytes()).unwrap();
 
     let mut should_run = true;
@@ -121,6 +129,4 @@ fn main() {
 
         println!("{}", String::from_utf8_lossy(&output.stdout));
     }
-
-    fs::remove_file(".tmp.sh").unwrap();
 }
