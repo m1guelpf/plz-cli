@@ -1,11 +1,16 @@
 use bat::PrettyPrinter;
 use clap::Parser;
 use colored::*;
+use filepath::FilePath;
 use question::{Answer, Question};
 use reqwest::blocking::Client;
 use serde_json::json;
 use spinners::{Spinner, Spinners};
-use std::{env, io::Write, process::Command};
+use std::{
+    env,
+    io::{Read, Write},
+    process::Command,
+};
 use tempfile::tempfile;
 
 #[derive(Parser, Debug)]
@@ -72,7 +77,6 @@ fn main() {
         .print()
         .unwrap();
 
-    // Creates a temporary file with destructor that will delete it when this variable goes out of scope
     let mut file = tempfile().unwrap_or_else(|_| {
         spinner.stop_and_persist(
             "✖".red().to_string().as_str(),
@@ -101,9 +105,8 @@ fn main() {
     if should_run {
         spinner = Spinner::new(Spinners::BouncingBar, "Executing...".into());
 
-        // run command and print output and error
         let output = Command::new("bash")
-            .arg(".tmp.sh")
+            .arg(file.path().expect("Couldn't get path of temporary file."))
             .output()
             .unwrap_or_else(|_| {
                 spinner.stop_and_persist(
