@@ -17,3 +17,4 @@ serde_json = { version = "1.0.89", default-features = false }
 clap = { version = "4.0.29", features = ["derive"] }
 reqwest = { version = "0.11.13", default-features = false, features = ["json", "blocking", "native-tls-crate", "default-tls", "hyper-tls", "__tls"] }
 bat = { version = "0.22.1", default-features = false, features = ["regex-onig"] }
+colored = "2.0.0"

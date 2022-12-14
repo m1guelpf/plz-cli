@@ -10,3 +10,4 @@ Cargo.lock
 **/*.rs.bk
 
 .DS_Store
+.tmp.sh

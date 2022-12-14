@@ -1,5 +1,6 @@
 use bat::PrettyPrinter;
 use clap::Parser;
+use colored::*;
 use question::{Answer, Question};
 use reqwest::blocking::Client;
 use serde_json::json;
@@ -20,7 +21,7 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
     let api_key = env::var("OPENAI_API_KEY").unwrap_or_else(|_| {
-        println!("This program requires an OpenAI API key to run. Please set the OPENAI_API_KEY environment variable.");
+        println!("{}", "This program requires an OpenAI API key to run. Please set the OPENAI_API_KEY environment variable.".red());
         std::process::exit(1);
     });
 
@@ -45,8 +46,10 @@ fn main() {
         .error_for_status()
         .unwrap_or_else(|_| {
             spinner.stop_and_persist(
-                "✖",
-                "Failed to get a response. Have you set the OPENAI_API_KEY variable?".into(),
+                "✖".red().to_string().as_str(),
+                "Failed to get a response. Have you set the OPENAI_API_KEY variable?"
+                    .red()
+                    .to_string(),
             );
             std::process::exit(1);
         });
@@ -56,7 +59,10 @@ fn main() {
         .unwrap()
         .to_string();
 
-    spinner.stop_and_persist("✔", "Got some code!".into());
+    spinner.stop_and_persist(
+        "✔".green().to_string().as_str(),
+        "Got some code!".green().to_string(),
+    );
 
     PrettyPrinter::new()
         .input_from_bytes(text.trim().as_bytes())
@@ -70,27 +76,48 @@ fn main() {
 
     let mut should_run = true;
     if !cli.force {
-        should_run = Question::new("\x1b[90m>> Run the generated program? [Y/n]\x1b[0m")
-            .yes_no()
-            .until_acceptable()
-            .default(Answer::YES)
-            .ask()
-            .expect("Couldn't ask question.")
+        should_run = Question::new(
+            ">> Run the generated program? [Y/n]"
+                .bright_black()
+                .to_string()
+                .as_str(),
+        )
+        .yes_no()
+        .until_acceptable()
+        .default(Answer::YES)
+        .ask()
+        .expect("Couldn't ask question.")
             == Answer::YES;
     }
 
     if should_run {
         spinner = Spinner::new(Spinners::BouncingBar, "Executing...".into());
 
+        // run command and print output and error
         let output = Command::new("bash")
             .arg(".tmp.sh")
             .output()
             .unwrap_or_else(|_| {
-                spinner.stop_and_persist("✖", "Failed to execute the generated program.".into());
+                spinner.stop_and_persist(
+                    "✖".red().to_string().as_str(),
+                    "Failed to execute the generated program.".red().to_string(),
+                );
                 std::process::exit(1);
             });
 
-        spinner.stop_and_persist("✔", "Command ran successfully".into());
+        if !output.status.success() {
+            spinner.stop_and_persist(
+                "✖".red().to_string().as_str(),
+                "The program threw an error.".red().to_string(),
+            );
+            println!("{}", String::from_utf8_lossy(&output.stderr));
+            std::process::exit(1);
+        }
+
+        spinner.stop_and_persist(
+            "✔".green().to_string().as_str(),
+            "Command ran successfully".green().to_string(),
+        );
 
         println!("{}", String::from_utf8_lossy(&output.stdout));
     }
