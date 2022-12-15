@@ -5,7 +5,7 @@ use question::{Answer, Question};
 use reqwest::blocking::Client;
 use serde_json::json;
 use spinners::{Spinner, Spinners};
-use std::{env, fs, io::Write, process::Command};
+use std::{env, process::Command};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -54,9 +54,10 @@ fn main() {
             std::process::exit(1);
         });
 
-    let text = response.json::<serde_json::Value>().unwrap()["choices"][0]["text"]
+    let code = response.json::<serde_json::Value>().unwrap()["choices"][0]["text"]
         .as_str()
         .unwrap()
+        .trim()
         .to_string();
 
     spinner.stop_and_persist(
@@ -65,14 +66,11 @@ fn main() {
     );
 
     PrettyPrinter::new()
-        .input_from_bytes(text.trim().as_bytes())
+        .input_from_bytes(code.as_bytes())
         .language("bash")
         .grid(true)
         .print()
         .unwrap();
-
-    let mut file = fs::File::create(".tmp.sh").unwrap();
-    file.write_all(text.as_bytes()).unwrap();
 
     let mut should_run = true;
     if !cli.force {
@@ -95,7 +93,8 @@ fn main() {
 
         // run command and print output and error
         let output = Command::new("bash")
-            .arg(".tmp.sh")
+            .arg("-c")
+            .arg(code)
             .output()
             .unwrap_or_else(|_| {
                 spinner.stop_and_persist(
@@ -121,6 +120,4 @@ fn main() {
 
         println!("{}", String::from_utf8_lossy(&output.stdout));
     }
-
-    fs::remove_file(".tmp.sh").unwrap();
 }
