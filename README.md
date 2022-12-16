@@ -20,7 +20,7 @@ You may need to close and reopen your terminal after installation. Alternatively
 export OPENAI_API_KEY='sk-XXXXXXXX'
 ```
 
-Once you have configured your environment, run `plz` followed by whatever it is that you want to do (`plz "show me all options for the plz cli"`).
+Once you have configured your environment, run `plz` followed by whatever it is that you want to do (`plz show me all options for the plz cli`).
 
 To get a full overview of all available options, run `plz --help`
 
