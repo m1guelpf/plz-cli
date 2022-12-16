@@ -11,7 +11,7 @@ use std::{env, process::Command};
 #[command(author, version, about, long_about = None)]
 struct Cli {
     /// Description of the command to execute
-    prompt: String,
+    prompt: Vec<String>,
 
     /// Run the generated program without asking for confirmation
     #[clap(short = 'y', long)]
@@ -38,7 +38,7 @@ fn main() {
             "presence_penalty": 0,
             "frequency_penalty": 0,
             "model": "text-davinci-003",
-            "prompt": format!("{}:\n```bash\n#!/bin/bash\n", cli.prompt),
+            "prompt": format!("{}:\n```bash\n#!/bin/bash\n", cli.prompt.join(" ")),
         }))
         .header("Authorization", format!("Bearer {}", api_key))
         .send()
