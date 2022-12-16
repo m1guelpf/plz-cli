@@ -39,6 +39,7 @@ fn main() {
             "frequency_penalty": 0,
             "model": "text-davinci-003",
             "prompt": format!("{}:\n```bash\n#!/bin/bash\n", cli.prompt.join(" ")),
+            "stop": "```",
         }))
         .header("Authorization", format!("Bearer {}", api_key))
         .send()
