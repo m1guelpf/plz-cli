@@ -40,6 +40,7 @@ fn main() {
         .post("https://api.openai.com/v1/completions")
         .json(&json!({
             "top_p": 1,
+            "stop": "```",
             "temperature": 0,
             "suffix": "\n```",
             "max_tokens": 1000,
