@@ -25,26 +25,17 @@ fn main() {
         std::process::exit(1);
     });
 
+    let client = Client::new();
     let mut spinner = Spinner::new(Spinners::BouncingBar, "Generating your command...".into());
 
-    let client = Client::new();
-    // Add a comment to tell GPT-3 what OS we're using
-    let os = if cfg!(target_os = "macos") {
-        "Mac"
+    let os_hint = if cfg!(target_os = "macos") {
+        " (on macOS)"
     } else if cfg!(target_os = "linux") {
-        "Linux"
+        " (on Linux)"
     } else {
-        "Unknown"
+        ""
     };
-    let prompt_string = if os == "Unknown" {
-        format!("{}:\n```bash\n#!/bin/bash\n", cli.prompt.join(" "))
-    } else {
-        format!(
-            "{}:\n```bash\n#!/bin/bash\n# OS: {}\n",
-            cli.prompt.join(" "),
-            os
-        )
-    };
+
     let response = client
         .post("https://api.openai.com/v1/completions")
         .json(&json!({
@@ -55,7 +46,7 @@ fn main() {
             "presence_penalty": 0,
             "frequency_penalty": 0,
             "model": "text-davinci-003",
-            "prompt": prompt_string,
+            "prompt": format!("{}{}:\n```bash\n#!/bin/bash\n", cli.prompt.join(" "), os_hint),
         }))
         .header("Authorization", format!("Bearer {}", api_key))
         .send()
