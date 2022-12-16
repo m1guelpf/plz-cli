@@ -21,7 +21,7 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
     let api_key = env::var("OPENAI_API_KEY").unwrap_or_else(|_| {
-        println!("{}", "This program requires an OpenAI API key to run. Please set the OPENAI_API_KEY environment variable.".red());
+        println!("{}", "This program requires an OpenAI API key to run. Please set the OPENAI_API_KEY environment variable. https://github.com/m1guelpf/plz-cli#usage".red());
         std::process::exit(1);
     });
 
