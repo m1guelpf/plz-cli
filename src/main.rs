@@ -25,21 +25,29 @@ fn main() {
         std::process::exit(1);
     });
 
+    let client = Client::new();
     let mut spinner = Spinner::new(Spinners::BouncingBar, "Generating your command...".into());
 
-    let client = Client::new();
+    let os_hint = if cfg!(target_os = "macos") {
+        " (on macOS)"
+    } else if cfg!(target_os = "linux") {
+        " (on Linux)"
+    } else {
+        ""
+    };
+
     let response = client
         .post("https://api.openai.com/v1/completions")
         .json(&json!({
             "top_p": 1,
+            "stop": "```",
             "temperature": 0,
             "suffix": "\n```",
             "max_tokens": 1000,
             "presence_penalty": 0,
             "frequency_penalty": 0,
             "model": "text-davinci-003",
-            "prompt": format!("{}:\n```bash\n#!/bin/bash\n", cli.prompt.join(" ")),
-            "stop": "```",
+            "prompt": format!("{}{}:\n```bash\n#!/bin/bash\n", cli.prompt.join(" "), os_hint),
         }))
         .header("Authorization", format!("Bearer {}", api_key))
         .send()
