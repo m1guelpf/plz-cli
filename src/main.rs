@@ -1,6 +1,8 @@
+#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
+
 use bat::PrettyPrinter;
 use clap::Parser;
-use colored::*;
+use colored::Colorize;
 use question::{Answer, Question};
 use reqwest::blocking::Client;
 use serde_json::json;
@@ -49,7 +51,7 @@ fn main() {
             "model": "text-davinci-003",
             "prompt": format!("{}{}:\n```bash\n#!/bin/bash\n", cli.prompt.join(" "), os_hint),
         }))
-        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Authorization", format!("Bearer {api_key}"))
         .send()
         .unwrap()
         .error_for_status()
@@ -81,9 +83,10 @@ fn main() {
         .print()
         .unwrap();
 
-    let mut should_run = true;
-    if !cli.force {
-        should_run = Question::new(
+    let should_run = if cli.force {
+        true
+    } else {
+        Question::new(
             ">> Run the generated program? [Y/n]"
                 .bright_black()
                 .to_string()
@@ -94,8 +97,8 @@ fn main() {
         .default(Answer::YES)
         .ask()
         .expect("Couldn't ask question.")
-            == Answer::YES;
-    }
+            == Answer::YES
+    };
 
     if should_run {
         spinner = Spinner::new(Spinners::BouncingBar, "Executing...".into());
