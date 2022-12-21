@@ -1,6 +1,5 @@
-use std::{env, error::Error, io::Write, process::exit};
-
 use colored::Colorize;
+use std::{env, error::Error, io::Write, process::exit};
 
 pub struct Config {
     pub api_key: String,
