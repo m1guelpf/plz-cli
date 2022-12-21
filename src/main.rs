@@ -26,10 +26,7 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
-    let config = config::Config::new().unwrap_or_else(|_| {
-        println!("{}", "Failed to load config file.".red());
-        std::process::exit(1);
-    });
+    let config = config::Config::new().unwrap();
 
     let client = Client::new();
     let mut spinner = Spinner::new(Spinners::BouncingBar, "Generating your command...".into());
@@ -41,8 +38,6 @@ fn main() {
     } else {
         ""
     };
-
-    println!("{}{}", cli.prompt.join(" "), os_hint);
 
     let response = client
         .post("https://api.openai.com/v1/completions")
