@@ -3,11 +3,14 @@
 use bat::PrettyPrinter;
 use clap::Parser;
 use colored::Colorize;
+use config::Config;
 use question::{Answer, Question};
 use reqwest::blocking::Client;
 use serde_json::json;
 use spinners::{Spinner, Spinners};
-use std::{env, process::Command};
+use std::process::Command;
+
+mod config;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -22,10 +25,7 @@ struct Cli {
 
 fn main() {
     let cli = Cli::parse();
-    let api_key = env::var("OPENAI_API_KEY").unwrap_or_else(|_| {
-        println!("{}", "This program requires an OpenAI API key to run. Please set the OPENAI_API_KEY environment variable. https://github.com/m1guelpf/plz-cli#usage".red());
-        std::process::exit(1);
-    });
+    let config = Config::new();
 
     let client = Client::new();
     let mut spinner = Spinner::new(Spinners::BouncingBar, "Generating your command...".into());
@@ -51,7 +51,7 @@ fn main() {
             "model": "text-davinci-003",
             "prompt": format!("{}{}:\n```bash\n#!/bin/bash\n", cli.prompt.join(" "), os_hint),
         }))
-        .header("Authorization", format!("Bearer {api_key}"))
+        .header("Authorization", format!("Bearer {}", config.api_key))
         .send()
         .unwrap()
         .error_for_status()
@@ -106,7 +106,7 @@ fn main() {
         // run command and print output and error
         let output = Command::new("bash")
             .arg("-c")
-            .arg(code)
+            .arg(code.as_str())
             .output()
             .unwrap_or_else(|_| {
                 spinner.stop_and_persist(
@@ -131,5 +131,7 @@ fn main() {
         );
 
         println!("{}", String::from_utf8_lossy(&output.stdout));
+
+        config.write_to_history(code.as_str());
     }
 }
