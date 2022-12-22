@@ -31,7 +31,7 @@ impl Config {
             .map_or((), |mut file| {
                 file.write_all(format!("{code}\n").as_bytes())
                     .unwrap_or_else(|_| {
-                        std::process::exit(1);
+                        exit(1);
                     });
             });
     }
