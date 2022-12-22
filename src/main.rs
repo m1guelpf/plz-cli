@@ -1,7 +1,5 @@
 #![warn(clippy::all, clippy::pedantic, clippy::nursery)]
 
-use std::process::Command;
-
 use bat::PrettyPrinter;
 use clap::Parser;
 use colored::Colorize;
@@ -10,6 +8,7 @@ use question::{Answer, Question};
 use reqwest::blocking::Client;
 use serde_json::json;
 use spinners::{Spinner, Spinners};
+use std::process::Command;
 
 mod config;
 
