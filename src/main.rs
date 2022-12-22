@@ -5,6 +5,7 @@ use std::process::Command;
 use bat::PrettyPrinter;
 use clap::Parser;
 use colored::Colorize;
+use config::Config;
 use question::{Answer, Question};
 use reqwest::blocking::Client;
 use serde_json::json;
@@ -25,8 +26,7 @@ struct Cli {
 
 fn main() {
     let cli = Cli::parse();
-
-    let config = config::Config::new().unwrap();
+    let config = Config::new();
 
     let client = Client::new();
     let mut spinner = Spinner::new(Spinners::BouncingBar, "Generating your command...".into());
@@ -133,8 +133,6 @@ fn main() {
 
         println!("{}", String::from_utf8_lossy(&output.stdout));
 
-        config.write_to_history(code.as_str()).unwrap_or_else(|_| {
-            std::process::exit(1);
-        });
+        config.write_to_history(code.as_str());
     }
 }
