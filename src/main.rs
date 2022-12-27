@@ -53,17 +53,26 @@ fn main() {
         }))
         .header("Authorization", format!("Bearer {}", config.api_key))
         .send()
-        .unwrap()
-        .error_for_status()
-        .unwrap_or_else(|_| {
-            spinner.stop_and_persist(
-                "✖".red().to_string().as_str(),
-                "Failed to get a response. Have you set the OPENAI_API_KEY variable?"
-                    .red()
-                    .to_string(),
-            );
-            std::process::exit(1);
-        });
+        .unwrap();
+
+    let status_code = response.status();
+    if status_code.is_client_error() {
+        let response_body = response.json::<serde_json::Value>().unwrap();
+        let error_message = response_body["error"]["message"].as_str().unwrap();
+        spinner.stop_and_persist(
+            "✖".red().to_string().as_str(),
+            format!("API error: \"{}\"", error_message).red().to_string(),
+        );
+        std::process::exit(1);
+    }
+    else if status_code.is_server_error() {
+        spinner.stop_and_persist(
+            "✖".red().to_string().as_str(),
+            format!("OpenAI is currently experiencing problems. Status code: {}", status_code)
+                .red().to_string(),
+        );
+        std::process::exit(1);
+    }
 
     let code = response.json::<serde_json::Value>().unwrap()["choices"][0]["text"]
         .as_str()
