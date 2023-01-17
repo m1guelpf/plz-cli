@@ -10,6 +10,14 @@ You can install `plz` by running the following command in your terminal.
 curl -fsSL https://raw.githubusercontent.com/m1guelpf/plz-cli/main/install.sh | sh -
 ```
 
+### Homebrew
+
+You can also install `plz` using [Homebrew](https://brew.sh/).
+
+```sh
+$ brew install plz-cli
+```
+
 You may need to close and reopen your terminal after installation. Alternatively, you can download the binary corresponding to your OS from the [latest release](https://github.com/m1guelpf/plz-cli/releases/latest).
 
 ## Usage
