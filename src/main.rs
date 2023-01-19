@@ -101,6 +101,7 @@ fn main() {
     };
 
     if should_run {
+        config.write_to_history(code.as_str());
         spinner = Spinner::new(Spinners::BouncingBar, "Executing...".into());
 
         // run command and print output and error
@@ -131,7 +132,5 @@ fn main() {
         );
 
         println!("{}", String::from_utf8_lossy(&output.stdout));
-
-        config.write_to_history(code.as_str());
     }
 }
