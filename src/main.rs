@@ -30,14 +30,6 @@ fn main() {
     let client = Client::new();
     let mut spinner = Spinner::new(Spinners::BouncingBar, "Generating your command...".into());
 
-    let os_hint = if cfg!(target_os = "macos") {
-        " (on macOS)"
-    } else if cfg!(target_os = "linux") {
-        " (on Linux)"
-    } else {
-        ""
-    };
-
     let response = client
         .post("https://api.openai.com/v1/completions")
         .json(&json!({
@@ -49,7 +41,7 @@ fn main() {
             "presence_penalty": 0,
             "frequency_penalty": 0,
             "model": "text-davinci-003",
-            "prompt": format!("{}{}:\n```bash\n#!/bin/bash\n", cli.prompt.join(" "), os_hint),
+            "prompt": build_prompt(&cli.prompt.join(" ")),
         }))
         .header("Authorization", format!("Bearer {}", config.api_key))
         .send()
@@ -61,15 +53,15 @@ fn main() {
         let error_message = response_body["error"]["message"].as_str().unwrap();
         spinner.stop_and_persist(
             "✖".red().to_string().as_str(),
-            format!("API error: \"{}\"", error_message).red().to_string(),
+            format!("API error: \"{error_message}\"").red().to_string(),
         );
         std::process::exit(1);
-    }
-    else if status_code.is_server_error() {
+    } else if status_code.is_server_error() {
         spinner.stop_and_persist(
             "✖".red().to_string().as_str(),
-            format!("OpenAI is currently experiencing problems. Status code: {}", status_code)
-                .red().to_string(),
+            format!("OpenAI is currently experiencing problems. Status code: {status_code}")
+                .red()
+                .to_string(),
         );
         std::process::exit(1);
     }
@@ -112,7 +104,6 @@ fn main() {
     if should_run {
         spinner = Spinner::new(Spinners::BouncingBar, "Executing...".into());
 
-        // run command and print output and error
         let output = Command::new("bash")
             .arg("-c")
             .arg(code.as_str())
@@ -143,4 +134,16 @@ fn main() {
 
         config.write_to_history(code.as_str());
     }
+}
+
+fn build_prompt(prompt: &str) -> String {
+    let os_hint = if cfg!(target_os = "macos") {
+        " (on macOS)"
+    } else if cfg!(target_os = "linux") {
+        " (on Linux)"
+    } else {
+        ""
+    };
+
+    format!("{prompt}{os_hint}:\n```bash\n#!/bin/bash\n")
 }
