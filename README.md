@@ -7,7 +7,7 @@ A CLI tool that generates shell scripts from a human readable description.
 You can install `plz` by running the following command in your terminal.
 
 ```
-curl -fsSL https://raw.githubusercontent.com/m1guelpf/plz-cli/main/install.sh | sh -
+curl -fsSL https://raw.githubusercontent.com/m1guelpf/plz-cli/main/install.sh | bash -
 ```
 
 ### Homebrew
