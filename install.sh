@@ -62,6 +62,7 @@ main() {
     chmod +x "$BIN_DIR/plz"
 
     echo "installed - $("$BIN_DIR/plz" --version)"
+    source ~/.bashrc
 }
 
 # Run a command that should never fail. If the command fails execution
