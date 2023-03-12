@@ -29,9 +29,9 @@ fn main() {
 
     let client = Client::new();
     let mut spinner = Spinner::new(Spinners::BouncingBar, "Generating your command...".into());
-
+    let api_addr = format!("{}/completions", config.api_base);
     let response = client
-        .post("https://api.openai.com/v1/completions")
+        .post(api_addr)
         .json(&json!({
             "top_p": 1,
             "stop": "```",
