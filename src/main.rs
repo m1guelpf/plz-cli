@@ -147,7 +147,6 @@ fn get_linux_distro() -> Option<String> {
                 if line.starts_with("ID=") {
                     // Extract the distribution ID from the line
                     let distro_id = line[3..].trim_matches('"').to_string();
-                    println!("distro_id: {}", distro_id);
                     return Some(distro_id);
                 }
             }
