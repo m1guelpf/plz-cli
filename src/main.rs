@@ -139,7 +139,7 @@ fn build_prompt(prompt: &str) -> String {
     let os_hint = if cfg!(target_os = "macos") {
         " (on macOS)"
     } else if cfg!(target_os = "linux") {
-        " (on Linux)"
+        " (on Arch Linux)"
     } else {
         ""
     };
