@@ -13,10 +13,15 @@ impl Config {
             println!("{}", "This program requires an OpenAI API key to run. Please set the OPENAI_API_KEY environment variable. https://github.com/m1guelpf/plz-cli#usage".red());
             exit(1);
         });
-        let api_base = env::var("OPENAI_API_BASE").unwrap_or_else(|_| String::from("https://api.openai.com/v1"));
+        let api_base = env::var("OPENAI_API_BASE")
+            .unwrap_or_else(|_| String::from("https://api.openai.com/v1"));
         let shell = env::var("SHELL").unwrap_or_else(|_| String::new());
 
-        Self { api_key, api_base, shell }
+        Self {
+            api_key,
+            api_base,
+            shell,
+        }
     }
 
     pub fn write_to_history(&self, code: &str) {

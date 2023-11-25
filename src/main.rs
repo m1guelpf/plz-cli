@@ -10,6 +10,10 @@ use serde_json::json;
 use spinners::{Spinner, Spinners};
 use std::process::Command;
 
+use std::fs::File;
+use std::io::{self, BufRead};
+// use std::path::Path;
+
 mod config;
 
 #[derive(Parser, Debug)]
@@ -135,14 +139,36 @@ fn main() {
     }
 }
 
+fn get_linux_distro() -> Option<String> {
+    if let Ok(file) = File::open("/etc/os-release") {
+        let reader = io::BufReader::new(file);
+        for line in reader.lines() {
+            if let Ok(line) = line {
+                if line.starts_with("ID=") {
+                    // Extract the distribution ID from the line
+                    let distro_id = line[3..].trim_matches('"').to_string();
+                    println!("distro_id: {}", distro_id);
+                    return Some(distro_id);
+                }
+            }
+        }
+    }
+    None
+}
+
 fn build_prompt(prompt: &str) -> String {
     let os_hint = if cfg!(target_os = "macos") {
-        " (on macOS)"
-    } else if cfg!(target_os = "linux") {
-        " (on Arch Linux)"
+        " (on macOS)".to_string()
+    }
+    else if cfg!(target_os = "linux") {
+        if let Some(distro) = get_linux_distro() {
+            format!(" (on {} Linux)", distro)
+        } else {
+            " (on Linux)".to_string()
+        }
     } else {
-        ""
+        "".to_string()
     };
 
-    format!("{prompt}{os_hint}:\n```bash\n#!/bin/bash\n")
+    format!("{prompt}{os_hint}:\n```bash\n#!/bin/bash\n", prompt = prompt, os_hint = os_hint)
 }
