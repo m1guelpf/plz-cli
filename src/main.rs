@@ -40,7 +40,7 @@ fn main() {
             "max_tokens": 1000,
             "presence_penalty": 0,
             "frequency_penalty": 0,
-            "model": "text-davinci-003",
+            "model": "gpt-3.5-turbo-instruct",
             "prompt": build_prompt(&cli.prompt.join(" ")),
         }))
         .header("Authorization", format!("Bearer {}", config.api_key))
