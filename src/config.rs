@@ -4,6 +4,7 @@ use std::{env, io::Write, process::exit};
 pub struct Config {
     pub api_key: String,
     pub api_base: String,
+    pub api_model: String,
     pub shell: String,
 }
 
@@ -14,9 +15,10 @@ impl Config {
             exit(1);
         });
         let api_base = env::var("OPENAI_API_BASE").unwrap_or_else(|_| String::from("https://api.openai.com/v1"));
+        let api_model = env::var("OPENAI_API_MODEL").unwrap_or_else(|_| String::from("gpt-4o-mini"));
         let shell = env::var("SHELL").unwrap_or_else(|_| String::new());
 
-        Self { api_key, api_base, shell }
+        Self { api_key, api_base, api_model, shell }
     }
 
     pub fn write_to_history(&self, code: &str) {
